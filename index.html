@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ-наряд</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        form { max-width: 600px; margin: 0 auto; }
+        label { display: block; margin-top: 10px; }
+        input, textarea, button { width: 100%; padding: 10px; margin-top: 5px; }
+        .required::after { content: " *"; color: red; }
+    </style>
+</head>
+<body>
+    <h1>Заказ-наряд №<span id="orderNumber">00000000</span></h1>
+    <form id="orderForm">
+        <label for="customerName" class="required">Имя заказчика:</label>
+        <input type="text" id="customerName" name="customerName" required>
+
+        <label for="orderDetails" class="required">Детали заказа:</label>
+        <textarea id="orderDetails" name="orderDetails" rows="4" required></textarea>
+
+        <label for="attachment">Прикрепить файл:</label>
+        <input type="file" id="attachment" name="attachment">
+
+        <button type="submit">Отправить заказ-наряд</button>
+    </form>
+
+    <script>
+        // Генерация номера заказа (пример)
+        let orderNumber = 1; // Начальный номер
+        document.getElementById('orderNumber').textContent = String(orderNumber).padStart(8, '0');
+
+        // Обработка отправки формы
+        document.getElementById('orderForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+
+            // Отправка данных на сервер
+            fetch(https://script.google.com/macros/s/AKfycbzQVKp-ow7fW9aZ_kCWKbcn01a8m5_mjeJVpuUW1iiI8MmkStcKHLbcBjABs6p-P6yp/exec
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Заказ-наряд успешно отправлен!');
+                orderNumber++;
+                document.getElementById('orderNumber').textContent = String(orderNumber).padStart(8, '0');
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке.');
+            });
+        });
+    </script>
+</body>
+</html>
