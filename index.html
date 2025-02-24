@@ -28,8 +28,8 @@
     </form>
 
     <script>
-        // Генерация номера заказа (пример)
-        let orderNumber = 1; // Начальный номер
+        // Инициализация номера заказа из localStorage
+        let orderNumber = localStorage.getItem('orderNumber') || 1;
         document.getElementById('orderNumber').textContent = String(orderNumber).padStart(8, '0');
 
         // Обработка отправки формы
@@ -39,20 +39,24 @@
 
             // Отправка данных на сервер
             fetch("https://script.google.com/macros/s/AKfycbzQVKp-ow7fW9aZ_kCWKbcn01a8m5_mjeJVpuUW1iiI8MmkStcKHLbcBjABs6p-P6yp/exec", {
-    method: 'POST',
-    body: formData
-})
-.then(response => response.json())
-.then(data => {
-    alert('Заказ-наряд успешно отправлен!');
-    orderNumber++;
-    document.getElementById('orderNumber').textContent = String(orderNumber).padStart(8, '0');
-})
-.catch(error => {
-    console.error('Ошибка:', error);
-    alert('Произошла ошибка при отправке.');
-});
-
+                method: 'POST',
+                body: formData,
+                redirect: 'follow'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Заказ-наряд успешно отправлен!');
+                // Обновление номера и сохранение в localStorage
+                orderNumber++;
+                localStorage.setItem('orderNumber', orderNumber);
+                document.getElementById('orderNumber').textContent = String(orderNumber).padStart(8, '0');
+                // Сброс формы
+                this.reset();
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке.');
+            });
         });
     </script>
 </body>
