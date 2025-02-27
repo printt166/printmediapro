@@ -2,133 +2,282 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Заказ-наряд</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Заказ-наряд на полиграфию</title>
     <style>
         .order-form {
-            max-width: 600px;
+            max-width: 800px;
             margin: 20px auto;
-            padding: 20px;
+            padding: 30px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            font-family: Arial, sans-serif;
         }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
         }
+
         label {
-            display: inline-block;
-            width: 200px;
-            vertical-align: top;
+            width: 250px;
+            margin-right: 20px;
+            font-weight: bold;
+            color: #333;
         }
+
         input, select, textarea {
-            width: 300px;
-            padding: 5px;
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-width: 300px;
+            margin: 5px 0;
         }
+
         h2 {
             text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-transform: uppercase;
         }
+
         .section-title {
             font-weight: bold;
-            margin-top: 20px;
-            margin-bottom: 10px;
+            margin: 25px 0 15px;
+            color: #34495e;
+            width: 100%;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+            margin: 5px;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        .custom-field {
+            display: none;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="order-form">
-        <h2>ЗАКАЗ-НАРЯД № 00000000</h2>
+        <h2>ЗАКАЗ-НАРЯД № <span id="orderNumber">${Date.now()}</span></h2>
         
         <div class="form-group">
             <label>Дата заказа:</label>
-            <input type="date" name="order_date">
+            <input type="date" id="orderDate" name="order_date" required>
         </div>
-        
+
         <div class="form-group">
             <label>Заказчик:</label>
-            <input type="text" name="customer">
+            <input type="text" name="customer" placeholder="Название компании" required>
         </div>
-        
+
         <div class="form-group">
             <label>Контактное лицо:</label>
-            <input type="text" name="contact_person">
+            <input type="text" name="contact_person" placeholder="Иванов Иван Иванович" required>
         </div>
-        
+
         <div class="form-group">
             <label>Телефон:</label>
-            <input type="tel" name="phone">
+            <input type="tel" name="phone" pattern="[+]{1}[0-9]{12}" placeholder="+380XXXXXXXXX" required>
         </div>
-        
+
         <div class="form-group">
             <label>Email:</label>
-            <input type="email" name="email">
+            <input type="email" name="email" placeholder="example@domain.com" required>
         </div>
-        
+
         <div class="section-title">Характеристики продукции</div>
-        
+
         <div class="form-group">
             <label>Наименование продукции:</label>
-            <input type="text" name="product_name">
-        </div>
-        
-        <div class="form-group">
-            <label>Формат:</label>
-            <input type="text" name="format">
-        </div>
-        
-        <div class="form-group">
-            <label>Тираж:</label>
-            <input type="number" name="circulation">
-        </div>
-        
-        <div class="form-group">
-            <label>Тип печати:</label>
-            <select name="print_type">
-                <option value="">Выберите тип</option>
-                <option value="offset">Офсетная</option>
-                <option value="digital">Цифровая</option>
-                <option value="screen">Трафаретная</option>
+            <select name="product_name" id="productName" required>
+                <option value="">Выберите продукцию</option>
+                <option value="label">Этикетка</option>
+                <option value="booklet">Буклет</option>
+                <option value="book">Книга</option>
+                <option value="newspaper">Газета</option>
+                <option value="poster">Плакат</option>
+                <option value="board">Борд</option>
+                <option value="banner">Баннер</option>
+                <option value="leaflet">Листовка</option>
+                <option value="business_card">Визитка</option>
+                <option value="euro_booklet">Евро буклет</option>
+                <option value="certificate">Сертификат</option>
+                <option value="pvc_table">Табл ПВХ</option>
+                <option value="cutting">Плотерная резка</option>
+                <option value="stopper">Стопер</option>
+                <option value="other">Другое</option>
             </select>
         </div>
-        
+
+        <div class="form-group">
+            <label>Формат:</label>
+            <select name="format" id="formatSelect" required>
+                <option value="">Выберите формат</option>
+                <option value="A6">A6</option>
+                <option value="A5">A5</option>
+                <option value="A4">A4</option>
+                <option value="A3">A3</option>
+                <option value="A2">A2</option>
+                <option value="A1">A1</option>
+                <option value="custom">Произвольный формат</option>
+            </select>
+            <input type="text" name="custom_format" 
+                   class="custom-field" 
+                   placeholder="Укажите размеры (мм)"
+                   id="customFormat">
+        </div>
+
+        <div class="form-group">
+            <label>Тип печати:</label>
+            <select name="print_type" required>
+                <option value="">Выберите тип печати</option>
+                <option value="digital">Цифровая</option>
+                <option value="offset">Офсетная</option>
+            </select>
+        </div>
+
         <div class="form-group">
             <label>Материал:</label>
-            <input type="text" name="material">
+            <select name="material" id="materialSelect" required>
+                <option value="">Выберите материал</option>
+                <option value="90">Бумага 90 г/м²</option>
+                <option value="115">Бумага 115 г/м²</option>
+                <option value="200">Бумага 200 г/м²</option>
+                <option value="300">Бумага 300 г/м²</option>
+                <option value="350">Бумага 350 г/м²</option>
+                <option value="self_adhesive">Самоклейка</option>
+                <option value="label_adhesive">Самоклейка лейбел</option>
+                <option value="oracal">Пленка оракал</option>
+                <option value="banner">Банер</option>
+                <option value="blueback">Блюбек бумага</option>
+                <option value="newspaper_paper">Газета</option>
+                <option value="other">Другой материал</option>
+            </select>
+            <input type="text" name="custom_material" 
+                   class="custom-field" 
+                   placeholder="Укажите материал"
+                   id="customMaterial">
         </div>
-        
-        <div class="section-title">Сроки и исполнение</div>
-        
+
         <div class="form-group">
             <label>Срок исполнения:</label>
-            <input type="date" name="deadline">
+            <input type="date" name="deadline" required>
         </div>
-        
-        <div class="form-group">
-            <label>Менеджер:</label>
-            <input type="text" name="manager">
-        </div>
-        
+
         <div class="form-group">
             <label>Примечание:</label>
-            <textarea name="notes" rows="4"></textarea>
+            <textarea name="notes" rows="4" placeholder="Дополнительные пожелания"></textarea>
         </div>
-        
+
+        <div class="section-title">Отправка файлов</div>
+
         <div class="form-group">
-            <label>Исполнитель:</label>
-            <input type="text" name="executor">
+            <label>Выберите способ отправки:</label>
+            <div class="email-providers">
+                <button type="button" class="email-btn" data-provider="gmail">Gmail</button>
+                <button type="button" class="email-btn" data-provider="ukrnet">Ukr.net</button>
+                <button type="button" class="email-btn" data-provider="meta">Meta.ua</button>
+                <button type="button" class="email-btn" data-provider="dropbox">Dropbox</button>
+                <button type="button" class="email-btn" data-provider="google_drive">Google Drive</button>
+            </div>
         </div>
-        
-        <div class="form-group">
-            <label>Заказчик:</label>
-            <input type="text" name="customer_sign">
-        </div>
-        
-        <div class="form-group">
-            <label>Прикрепить файл:</label>
-            <input type="file" name="attachment">
-        </div>
-        
-        <div style="text-align: center;">
-            <button type="submit">Отправить заказ-наряд</button>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button type="button" onclick="sendOrder()">Отправить заказ-наряд</button>
         </div>
     </div>
+
+    <script>
+        // Автоматическая установка даты
+        document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
+        
+        // Генерация номера заказа
+        document.getElementById('orderNumber').textContent = 
+            Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+
+        // Обработка произвольного формата
+        document.getElementById('formatSelect').addEventListener('change', function() {
+            document.getElementById('customFormat').style.display = 
+                this.value === 'custom' ? 'block' : 'none';
+        });
+
+        // Обработка произвольного материала
+        document.getElementById('materialSelect').addEventListener('change', function() {
+            document.getElementById('customMaterial').style.display = 
+                this.value === 'other' ? 'block' : 'none';
+        });
+
+        // Отправка через почтовые сервисы
+        document.querySelectorAll('.email-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const provider = this.dataset.provider;
+                const email = 'printmediapro@gmail.com';
+                let url = '';
+
+                switch(provider) {
+                    case 'gmail':
+                        url = `https://mail.google.com/mail/?view=cm&to=${email}`;
+                        break;
+                    case 'ukrnet':
+                        url = 'https://mail.ukr.net/new/';
+                        break;
+                    case 'meta':
+                        url = 'https://meta.ua/';
+                        break;
+                    case 'dropbox':
+                        url = 'https://www.dropbox.com/';
+                        break;
+                    case 'google_drive':
+                        url = 'https://drive.google.com/';
+                        break;
+                }
+
+                if(url) window.open(url, '_blank');
+            });
+        });
+
+        // Валидация телефона
+        document.querySelector('input[name="phone"]').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^\d+]/g, '');
+        });
+
+        // Функция отправки формы
+        function sendOrder() {
+            // Здесь должна быть реализация генерации PDF
+            // и отправки на почту через выбранный сервис
+            window.location.href = `mailto:printmediapro@gmail.com?subject=Заказ-наряд №${document.getElementById('orderNumber").textContent}`;
+        }
+    </script>
 </body>
 </html>
