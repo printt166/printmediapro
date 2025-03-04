@@ -283,17 +283,39 @@
 
         // Функция отправки формы
         function sendOrder() {
-            // Собираем данные
-            const formData = {
-                orderNumber: document.getElementById('orderNumber').textContent,
-                product: getSelectedValue('productName', 'customProduct'),
-                format: getSelectedValue('formatSelect', 'customFormat'),
-                material: getSelectedValue('materialSelect', 'customMaterial'),
-                // ... остальные поля
-            };
+            const form = document.querySelector('.order-form');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
 
-            // Отправка (заглушка)
-            window.location.href = `mailto:printmediapro@gmail.com?subject=Заказ-наряд №${formData.orderNumber}&body=${JSON.stringify(formData)}`;
+            // Добавляем номер заказа
+            data.orderNumber = document.getElementById('orderNumber').textContent;
+
+            // Получаем значения для кастомных полей
+            data.product_name = getSelectedValue('productName', 'customProduct');
+            data.format = getSelectedValue('formatSelect', 'customFormat');
+            data.material = getSelectedValue('materialSelect', 'customMaterial');
+
+            // Добавляем остальные поля
+            data.print_type = formData.get('print_type');
+            data.deadline = formData.get('deadline');
+            data.notes = formData.get('notes');
+
+            // Отправка данных на Google Apps Script
+            fetch('https://script.google.com/macros/s/AKfycbzExojVFfYUvoyQ2XhQNjgchO2Yk0U9RQTcN4tg4s6Iqb_9iLgSmxvbbJ1v35Ih3okd5Q/exec', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.text())
+            .then(result => {
+                alert(result);  // Показываем сообщение об успехе
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при отправке');
+            });
         }
 
         // Универсальная функция получения значения
