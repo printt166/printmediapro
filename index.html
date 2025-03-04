@@ -89,7 +89,7 @@
     </style>
 </head>
 <body>
-    <div class="order-form">
+    <form class="order-form" onsubmit="sendOrder(); return false;">
         <h2>ЗАКАЗ-НАРЯД № <span id="orderNumber"></span></h2>
         
         <!-- Основные поля -->
@@ -145,8 +145,7 @@
             <input type="text" name="custom_product" 
                    class="custom-field" 
                    placeholder="Укажите название продукции"
-                   id="customProduct"
-                   required>
+                   id="customProduct">
         </div>
 
         <!-- Формат с кастомным полем -->
@@ -165,8 +164,7 @@
             <input type="text" name="custom_format" 
                    class="custom-field" 
                    placeholder="Укажите размеры (мм)"
-                   id="customFormat"
-                   required>
+                   id="customFormat">
         </div>
 
         <!-- Тип печати -->
@@ -200,8 +198,7 @@
             <input type="text" name="custom_material" 
                    class="custom-field" 
                    placeholder="Укажите материал"
-                   id="customMaterial"
-                   required>
+                   id="customMaterial">
         </div>
 
         <!-- Остальные поля -->
@@ -229,9 +226,9 @@
         </div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button type="button" onclick="sendOrder()">Отправить заказ-наряд</button>
+            <button type="submit">Отправить заказ-наряд</button>
         </div>
-    </div>
+    </form>
 
     <script>
         // Инициализация при загрузке
@@ -243,7 +240,7 @@
             document.getElementById('orderNumber').textContent = 
                 Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
 
-            // Обработчики изменений
+            // Обработчики изменений для кастомных полей
             setupCustomField('productName', 'customProduct', 'other');
             setupCustomField('formatSelect', 'customFormat', 'custom');
             setupCustomField('materialSelect', 'customMaterial', 'other');
@@ -298,7 +295,14 @@
             // Добавляем остальные поля
             data.print_type = formData.get('print_type');
             data.deadline = formData.get('deadline');
-            data.notes = formData.get('notes');
+            data.notes = formData.get('notes') || 'Отсутствует';
+
+            // Проверка обязательных полей
+            if (!data.customer || !data.contact_person || !data.phone || !data.email || 
+                !data.product_name || !data.format || !data.print_type || !data.material || !data.deadline) {
+                alert('Пожалуйста, заполните все обязательные поля.');
+                return;
+            }
 
             // Отправка данных на Google Apps Script
             fetch('https://script.google.com/macros/s/AKfycbzExojVFfYUvoyQ2XhQNjgchO2Yk0U9RQTcN4tg4s6Iqb_9iLgSmxvbbJ1v35Ih3okd5Q/exec', {
@@ -308,22 +312,29 @@
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.text())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сервера: ' + response.status);
+                }
+                return response.text();
+            })
             .then(result => {
-                alert(result);  // Показываем сообщение об успехе
+                alert('Заказ успешно отправлен: ' + result);
             })
             .catch(error => {
                 console.error('Ошибка:', error);
-                alert('Произошла ошибка при отправке');
+                alert('Произошла ошибка при отправке: ' + error.message);
             });
         }
 
         // Универсальная функция получения значения
         function getSelectedValue(selectId, customFieldId) {
             const select = document.getElementById(selectId);
-            return select.value === 'other' || select.value === 'custom' 
-                ? document.getElementById(customFieldId).value
-                : select.options[select.selectedIndex].text;
+            if (select.value === 'other' || select.value === 'custom') {
+                return document.getElementById(customFieldId).value;
+            } else {
+                return select.options[select.selectedIndex].text;
+            }
         }
     </script>
 </body>
