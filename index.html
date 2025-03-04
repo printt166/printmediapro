@@ -38,6 +38,12 @@
             margin: 5px 0;
         }
 
+        .custom-field {
+            display: none;
+            width: 100%;
+            margin-top: 10px;
+        }
+
         h2 {
             text-align: center;
             color: #2c3e50;
@@ -70,11 +76,6 @@
             background: #2980b9;
         }
 
-        .custom-field {
-            display: none;
-            margin-top: 10px;
-        }
-
         @media (max-width: 768px) {
             .form-group {
                 flex-direction: column;
@@ -89,8 +90,9 @@
 </head>
 <body>
     <div class="order-form">
-        <h2>ЗАКАЗ-НАРЯД № <span id="orderNumber">${Date.now()}</span></h2>
+        <h2>ЗАКАЗ-НАРЯД № <span id="orderNumber"></span></h2>
         
+        <!-- Основные поля -->
         <div class="form-group">
             <label>Дата заказа:</label>
             <input type="date" id="orderDate" name="order_date" required>
@@ -116,8 +118,10 @@
             <input type="email" name="email" placeholder="example@domain.com" required>
         </div>
 
+        <!-- Характеристики продукции -->
         <div class="section-title">Характеристики продукции</div>
 
+        <!-- Наименование продукции с кастомным полем -->
         <div class="form-group">
             <label>Наименование продукции:</label>
             <select name="product_name" id="productName" required>
@@ -138,8 +142,14 @@
                 <option value="stopper">Стопер</option>
                 <option value="other">Другое</option>
             </select>
+            <input type="text" name="custom_product" 
+                   class="custom-field" 
+                   placeholder="Укажите название продукции"
+                   id="customProduct"
+                   required>
         </div>
 
+        <!-- Формат с кастомным полем -->
         <div class="form-group">
             <label>Формат:</label>
             <select name="format" id="formatSelect" required>
@@ -155,9 +165,11 @@
             <input type="text" name="custom_format" 
                    class="custom-field" 
                    placeholder="Укажите размеры (мм)"
-                   id="customFormat">
+                   id="customFormat"
+                   required>
         </div>
 
+        <!-- Тип печати -->
         <div class="form-group">
             <label>Тип печати:</label>
             <select name="print_type" required>
@@ -167,6 +179,7 @@
             </select>
         </div>
 
+        <!-- Материал с кастомным полем -->
         <div class="form-group">
             <label>Материал:</label>
             <select name="material" id="materialSelect" required>
@@ -187,9 +200,11 @@
             <input type="text" name="custom_material" 
                    class="custom-field" 
                    placeholder="Укажите материал"
-                   id="customMaterial">
+                   id="customMaterial"
+                   required>
         </div>
 
+        <!-- Остальные поля -->
         <div class="form-group">
             <label>Срок исполнения:</label>
             <input type="date" name="deadline" required>
@@ -200,8 +215,8 @@
             <textarea name="notes" rows="4" placeholder="Дополнительные пожелания"></textarea>
         </div>
 
+        <!-- Отправка файлов -->
         <div class="section-title">Отправка файлов</div>
-
         <div class="form-group">
             <label>Выберите способ отправки:</label>
             <div class="email-providers">
@@ -219,51 +234,45 @@
     </div>
 
     <script>
-        // Автоматическая установка даты
-        document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
-        
-        // Генерация номера заказа
-        document.getElementById('orderNumber').textContent = 
-            Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            // Автоматическая установка даты
+            document.getElementById('orderDate').value = new Date().toISOString().split('T')[0];
+            
+            // Генерация номера заказа
+            document.getElementById('orderNumber').textContent = 
+                Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
 
-        // Обработка произвольного формата
-        document.getElementById('formatSelect').addEventListener('change', function() {
-            document.getElementById('customFormat').style.display = 
-                this.value === 'custom' ? 'block' : 'none';
+            // Обработчики изменений
+            setupCustomField('productName', 'customProduct', 'other');
+            setupCustomField('formatSelect', 'customFormat', 'custom');
+            setupCustomField('materialSelect', 'customMaterial', 'other');
         });
 
-        // Обработка произвольного материала
-        document.getElementById('materialSelect').addEventListener('change', function() {
-            document.getElementById('customMaterial').style.display = 
-                this.value === 'other' ? 'block' : 'none';
-        });
+        // Универсальная функция для кастомных полей
+        function setupCustomField(selectId, fieldId, triggerValue) {
+            const select = document.getElementById(selectId);
+            const field = document.getElementById(fieldId);
+
+            select.addEventListener('change', () => {
+                const show = select.value === triggerValue;
+                field.style.display = show ? 'block' : 'none';
+                field.required = show;
+            });
+        }
 
         // Отправка через почтовые сервисы
         document.querySelectorAll('.email-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const provider = this.dataset.provider;
-                const email = 'printmediapro@gmail.com';
-                let url = '';
-
-                switch(provider) {
-                    case 'gmail':
-                        url = `https://mail.google.com/mail/?view=cm&to=${email}`;
-                        break;
-                    case 'ukrnet':
-                        url = 'https://mail.ukr.net/new/';
-                        break;
-                    case 'meta':
-                        url = 'https://meta.ua/';
-                        break;
-                    case 'dropbox':
-                        url = 'https://www.dropbox.com/';
-                        break;
-                    case 'google_drive':
-                        url = 'https://drive.google.com/';
-                        break;
-                }
-
-                if(url) window.open(url, '_blank');
+                const urls = {
+                    gmail: 'https://mail.google.com/mail/?view=cm&to=printmediapro@gmail.com',
+                    ukrnet: 'https://mail.ukr.net/new/',
+                    meta: 'https://meta.ua/',
+                    dropbox: 'https://www.dropbox.com/',
+                    google_drive: 'https://drive.google.com/'
+                };
+                if (urls[provider]) window.open(urls[provider], '_blank');
             });
         });
 
@@ -274,9 +283,25 @@
 
         // Функция отправки формы
         function sendOrder() {
-            // Здесь должна быть реализация генерации PDF
-            // и отправки на почту через выбранный сервис
-            window.location.href = `mailto:printmediapro@gmail.com?subject=Заказ-наряд №${document.getElementById('orderNumber").textContent}`;
+            // Собираем данные
+            const formData = {
+                orderNumber: document.getElementById('orderNumber').textContent,
+                product: getSelectedValue('productName', 'customProduct'),
+                format: getSelectedValue('formatSelect', 'customFormat'),
+                material: getSelectedValue('materialSelect', 'customMaterial'),
+                // ... остальные поля
+            };
+
+            // Отправка (заглушка)
+            window.location.href = `mailto:printmediapro@gmail.com?subject=Заказ-наряд №${formData.orderNumber}&body=${JSON.stringify(formData)}`;
+        }
+
+        // Универсальная функция получения значения
+        function getSelectedValue(selectId, customFieldId) {
+            const select = document.getElementById(selectId);
+            return select.value === 'other' || select.value === 'custom' 
+                ? document.getElementById(customFieldId).value
+                : select.options[select.selectedIndex].text;
         }
     </script>
 </body>
